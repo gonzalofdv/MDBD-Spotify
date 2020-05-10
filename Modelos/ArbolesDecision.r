@@ -28,9 +28,6 @@ set.seed(1234)
 #comprobaremos el grupo de la popularidad en funcion del resto de variables para empezar
 formula1 <- group ~ genero + acousticness + danceability + duration + energy + 
   instrumentalness + clave + liveness + loudness + mode + speechiness + tempo +time_signature + valence
-#ahora, el grupo con solo las variables de acousticness, danceability, loudness, energy e instrumentalness, que son las que mayor correlacion tienen 
-formula2 <- group ~ acousticness + danceability + energy + 
-  instrumentalness + loudness
 #hacemos la division en entrenamiento y prueba, empezaremos con una division del 70%/30% respectivamente
 ind <- sample(2, nrow(copia), replace=TRUE, prob=c(0.7, 0.3))
 train <- copia[ind == 1, ]
@@ -38,17 +35,13 @@ test <- copia[ind == 2,]
 
 #hora de construir los arboles
 tree1 <- ctree(formula1, train)
-tree2 <- ctree(formula2, train)
 
 #una vez tengamos los arboles, comprobemos su precision
 table(predict(tree1), train$group)
-table(predict(tree2), train$group)
 
 precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 45.24% en entrenamiento
-precTrain2 <- mean(predict(tree2) == train$group) #nos da un valor del  31.72% en entrenamiento 
 
 precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 44.33% en prueba
-precTest2 <- mean(predict(tree2, newdata = test) == test$group) #nos da un valor del 30.94% en prueba
 #Una precisión bastante baja para ambos si consideramos un buen valor de precision aquel por encima del 70%
 
 #probemos ahora con una division entrenamiento/prueba del 80/20
@@ -58,24 +51,18 @@ test <- copia[ind == 2,]
 
 #hora de construir los arboles
 tree1 <- ctree(formula1, train)
-tree2 <- ctree(formula2, train)
 
 #una vez tengamos los arboles, comprobemos su precision
 table(predict(tree1), train$group)
-table(predict(tree2), train$group)
 
 precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 45.20% en entrenamiento
-precTrain2 <- mean(predict(tree2) == train$group) #nos da un valor del  31.86% en entrenamiento 
 
 precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 45.16% en prueba
-precTest2 <- mean(predict(tree2, newdata = test) == test$group) #nos da un valor del 30.58% en prueba
 
-#----------------------------------------------------------------------
-#Ejecutar a partir de aqui que a mi me da un error que no se solucionar|
-#----------------------------------------------------------------------
 #comprobemos ahora con una menor dispersion de la variable groups. Dividamos la popularidad en 5 tramos en vez de 10 
 copia$group <- cut(copia$popularity, c(-1, 20, 40, 60, 80, 100), labels = 
                      c('group0','group1','group2','group3','group4'))
+
 #Mismo procedimeinto que antes
 #hacemos la division en entrenamiento y prueba, empezaremos con una division del 70%/30% respectivamente
 ind <- sample(2, nrow(copia), replace=TRUE, prob=c(0.7, 0.3))
@@ -84,38 +71,57 @@ test <- copia[ind == 2,]
 
 #hora de construir los arboles
 tree3 <- ctree(formula1, train)
-tree2 <- ctree(formula2, train)
 
 #una vez tengamos los arboles, comprobemos su precision
 table(predict(tree1), train$group)
-table(predict(tree2), train$group)
 
-precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 45.24% en entrenamiento
-precTrain2 <- mean(predict(tree2) == train$group) #nos da un valor del  31.72% en entrenamiento 
+precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 69.62% en entrenamiento
 
-precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 44.33% en prueba
-precTest2 <- mean(predict(tree2, newdata = test) == test$group) #nos da un valor del 30.94% en prueba
+precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 68.93% en prueba
 #Una precisión bastante baja para ambos si consideramos un buen valor de precision aquel por encima del 70%
-
-#probemos ahora con una division entrenamiento/prueba del 80/20
-ind <- sample(2, nrow(copia), replace=TRUE, prob=c(0.8, 0.2))
+#---------------------------------------------------------------------------------------------------------------
+#probaremos con una division de la popularidad en cuatro tramos de rango 25.
+copia$group <- cut(copia$popularity, c(-1,25, 50,75, 100), labels = 
+                     c('group0','group1'))
+#Mismo procedimeinto que antes
+#hacemos la division en entrenamiento y prueba, empezaremos con una division del 70%/30% respectivamente
+ind <- sample(2, nrow(copia), replace=TRUE, prob=c(0.7, 0.3))
 train <- copia[ind == 1, ]
 test <- copia[ind == 2,]
 
 #hora de construir los arboles
 tree1 <- ctree(formula1, train)
-tree2 <- ctree(formula2, train)
 
 #una vez tengamos los arboles, comprobemos su precision
 table(predict(tree1), train$group)
-table(predict(tree2), train$group)
 
-precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 45.20% en entrenamiento
-precTrain2 <- mean(predict(tree2) == train$group) #nos da un valor del  31.86% en entrenamiento 
+precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 74.08% en entrenamiento
 
-precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 45.16% en prueba
-precTest2 <- mean(predict(tree2, newdata = test) == test$group) #nos da un valor del 30.58% en prueba
+precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 73.35% en prueba
 
-#Los resultados siguen siendo bajos. Los arboles de decision serán una solución poco precisa por lo que no seguiremos investigandolos
+#Con la formula 1, que toma como variable dependiente group y como independientes todas las demas,
+#conseguimos una precisión mayor que el 70% tanto en prueba como en entrenamiento
 
+#---------------------------------------------------------
 
+#por ultimo, probaremos con una division de la popularidad en dos tramos de rango 50.
+copia$group <- cut(copia$popularity, c(-1, 50, 100), labels = 
+                     c('group0','group1'))
+#Mismo procedimeinto que antes
+#hacemos la division en entrenamiento y prueba, empezaremos con una division del 70%/30% respectivamente
+ind <- sample(2, nrow(copia), replace=TRUE, prob=c(0.7, 0.3))
+train <- copia[ind == 1, ]
+test <- copia[ind == 2,]
+
+#hora de construir los arboles
+tree1 <- ctree(formula1, train)
+
+#una vez tengamos los arboles, comprobemos su precision
+table(predict(tree1), train$group)
+
+precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 83.75% en entrenamiento
+
+precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 83.47% en prueba
+
+#Con la formula 1, que toma como variable dependiente group y como independientes todas las demas,
+#conseguimos una precisión mayor que el 70% tanto en prueba como en entrenamiento
