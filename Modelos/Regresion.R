@@ -95,4 +95,43 @@ abline(a=0, b=1)
  plot(dataOzuna$popularity, pred, xlab="Observed Values", ylab="Predicted Values")
  abline(a=0, b=1)
 
+#ITERACIÓN 2 10/05
+#1. Creación del modelo
+#1.1 datasheet entero
+dataCopy2$group <- as.numeric(dataCopy2$group)
+regresion2.glm <-glm(formuCopy2, data = dataCopy2)
+
+#2. Visualización 
+#1.2 data
+summary(regresion2.glm)
+#Resultados:
+glm(formula = formuCopy2, data = dataCopy2)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-4.5142  -0.9634   0.1426   1.1281   5.8521  
+
+Coefficients:
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)         5.983612   0.028193  212.24   <2e-16 ***
+dataCopy2$energy   -0.620155   0.029296  -21.17   <2e-16 ***
+dataCopy2$loudness  0.124000   0.001295   95.73   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for gaussian family taken to be 2.483591)
+
+    Null deviance: 383406  on 133948  degrees of freedom
+Residual deviance: 332667  on 133946  degrees of freedom
+AIC: 501990
+
+Number of Fisher Scoring iterations: 2
+
  
+#3. Aplicación del modelo
+#1.3 data
+pred <-predict(regresion2.glm, type="response")
+ 
+#4. Representación
+plot(dataCopy2$group, pred, xlab="Observed Values", ylab="Predicted Values")
+abline(a=0, b=1)
