@@ -135,3 +135,12 @@ pred <-predict(regresion2.glm, type="response")
 #4. Representación
 plot(dataCopy2$group, pred, xlab="Observed Values", ylab="Predicted Values")
 abline(a=0, b=1)
+
+ 
+ 
+ #Actualización de Evaluación aplicada a Ozuna
+ #ECM, EMA, EMR
+ 
+ECMprioriOzu <- sum((residuals(ozufit)^2))/length(residuals(ozufit))
+EMAaprioriOzu <- sqrt(ECMprioriOzu);
+EMRprioriOzu <- EMAaprioriOzu / mean(dataCopy2$group); 
