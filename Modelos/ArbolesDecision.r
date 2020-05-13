@@ -2,11 +2,27 @@
 
 #cargamos las librerias que usaremos
 library(party)
-#No habrá conexión con la base de datos en este modelo porque no soy el localhost
 
-#carga del csv. cambiar ruta por la ruta correspondiente
-dataset <- read.csv('C:/Users/Moha/Desktop/Universidad/MDBD/SpotifyPredictore/dataset.csv')
-copia <- dataset
+#SIN ACCESO A LA BASE DE DATOS
+  #No habrá conexión con la base de datos en este modelo porque no soy el localhost
+  
+  #carga del csv. cambiar ruta por la ruta correspondiente
+  #dataset <- read.csv('C:/Users/Moha/Desktop/Universidad/MDBD/SpotifyPredictore/dataset.csv')
+  #copia <- dataset
+
+#CON ACCESO A LA BASE DE DATOS
+
+#Conexión con la base de datos
+
+con <- dbConnect(RMySQL::MySQL(),
+                 host="localhost",
+                 dbname = "mineriabd",
+                 user = "root",
+                 password = "")
+
+#Obtenemos los datos del dw
+
+copia<-dbGetQuery(con, "SELECT * FROM cancion")
 
 #preparación del dataset para trabajar. Usaremos la copia para no modificar el dataset original
 #convertir los valores de 'clave', 'genero', 'modo' y 'time_signature' en factors
@@ -44,6 +60,7 @@ precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 45.24% en
 precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 44.33% en prueba
 #Una precisión bastante baja para ambos si consideramos un buen valor de precision aquel por encima del 70%
 
+
 #probemos ahora con una division entrenamiento/prueba del 80/20
 ind <- sample(2, nrow(copia), replace=TRUE, prob=c(0.8, 0.2))
 train <- copia[ind == 1, ]
@@ -70,7 +87,7 @@ train <- copia[ind == 1, ]
 test <- copia[ind == 2,]
 
 #hora de construir los arboles
-tree3 <- ctree(formula1, train)
+tree1 <- ctree(formula1, train)
 
 #una vez tengamos los arboles, comprobemos su precision
 table(predict(tree1), train$group)

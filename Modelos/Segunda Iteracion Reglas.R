@@ -1,6 +1,23 @@
 #PREPROCESAMIENTO DE DATOS
 
-dataRules <- read.csv('SpotifyFeatures.csv', encoding = 'UTF-8')
+#Librería RMySQL
+library("RMySQL")
+
+set.seed(28626)
+
+#Conexión con la base de datos
+
+con <- dbConnect(RMySQL::MySQL(),
+                 host="localhost",
+                 dbname = "mineriabd",
+                 user = "root",
+                 password = "")
+
+#Obtenemos los datos del dw
+
+dataRules<-dbGetQuery(con, "SELECT popularity, acousticness, danceability, energy, loudness FROM cancion")
+
+#dataRules <- read.csv('SpotifyFeatures.csv', encoding = 'UTF-8')
 
 #Creamos una columna nueva en la que vamos a agrupar los datos de popularidad en 
 #10 intervalos 
@@ -35,16 +52,20 @@ summary(dataRules)
 
 #Ahora eliminamos las columnas que no nos van a aportar informacion(En las primeras iteraciones vimos que tenian
 #poca correlacion o nula con la popularidad):
-dataRules$track_id = NULL
-dataRules$artist_name = NULL
-dataRules$track_name = NULL
-dataRules$popularity = NULL
-dataRules$duration_ms = NULL
-dataRules$liveness = NULL
-dataRules$instrumentalness = NULL
-dataRules$speechiness = NULL
-dataRules$tempo = NULL
-dataRules$valence = NULL
+  #Esto solo para procesamiento sin conexión a BD:
+    #dataRules$track_id = NULL
+    #dataRules$artist_name = NULL
+    #dataRules$track_name = NULL
+    #dataRules$popularity = NULL
+    #dataRules$duration_ms = NULL
+    #dataRules$liveness = NULL
+    #dataRules$instrumentalness = NULL
+    #dataRules$speechiness = NULL
+    #dataRules$tempo = NULL
+    #dataRules$valence = NULL
+
+  #Para procesamiento con BD, habremos extraido únicamente la información necesaria
+    dataRules$popularity = NULL
 
 #Pasamos a factor los valores numericos
 
