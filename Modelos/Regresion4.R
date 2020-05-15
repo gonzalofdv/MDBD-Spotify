@@ -1,4 +1,6 @@
+#Script Regresión 4
 
+#Group (grupos por popularity), energy, loudness
 
 > dataGrupos5<-dataCopy2
 > View(dataCopy2)
