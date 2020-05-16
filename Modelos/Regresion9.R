@@ -64,3 +64,79 @@ EMAAI
 [1] 16.09211
 EMRAI
 [1] 0.4036794
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ ################################################################
+ #A partir de aquí con el dataset de Ozuna
+  glmAI.glm <- glm(formulaAI, data = dataCopy2)
+ summary(glmAI.glm)
+
+Call:
+glm(formula = formulaAI, data = dataCopy2)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-42.181   -5.749    4.353   10.149   28.918  
+
+Coefficients:
+                           Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                  66.841      3.758  17.784   <2e-16 ***
+dataCopy2$acousticness      -21.032     14.125  -1.489    0.142    
+dataCopy2$instrumentalness  779.563   2009.479   0.388    0.699    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for gaussian family taken to be 295.5106)
+
+    Null deviance: 18442  on 62  degrees of freedom
+Residual deviance: 17731  on 60  degrees of freedom
+AIC: 542.1
+
+Number of Fisher Scoring iterations: 2
+
+ pred<- predict(glmAI.glm, type = "response")
+ plot(dataCopy2$popularity, pred, xlab="Observed Values", ylab="Predicted Values")
+ abline(a=0, b=1)
+ View(dataCopy2)
+ pred<- predict(glmAI.glm, type = "response")
+ glmAI.glm$coefficients
+               (Intercept)     dataCopy2$acousticness dataCopy2$instrumentalness 
+                  66.84084                  -21.03155                  779.56291 
+ lmAIOzuna<-lm(dataCopy2$popularity ~ dataCopy2$acousticness + dataCopy2$instrumentalness)
+ summary(lmAIOzuna)
+
+Call:
+lm(formula = dataCopy2$popularity ~ dataCopy2$acousticness + 
+    dataCopy2$instrumentalness)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-42.181  -5.749   4.353  10.149  28.918 
+
+Coefficients:
+                           Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                  66.841      3.758  17.784   <2e-16 ***
+dataCopy2$acousticness      -21.032     14.125  -1.489    0.142    
+dataCopy2$instrumentalness  779.563   2009.479   0.388    0.699    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 17.19 on 60 degrees of freedom
+Multiple R-squared:  0.03856,	Adjusted R-squared:  0.00651 
+F-statistic: 1.203 on 2 and 60 DF,  p-value: 0.3074
+
+ ECMAIOzuna <- sum((residuals(lmAIOzuna)^2))/length(residuals(lmAIOzuna))
+ EMAAIOzuna <- sqrt(ECMAIOzuna);
+ EMRAIOzuna <- EMAAIOzuna / mean(dataCopy2$popularity);
+ ECMAIOzuna
+[1] 281.4387
+ EMAAIOzuna
+[1] 16.77613
+ EMRAIOzuna
+[1] 0.2683159
