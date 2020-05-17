@@ -1,4 +1,4 @@
-#SCRIPT MODELO REGRESION 3
+#SCRIPT ANÁLISIS DISCRIMINANTE
 
 #Librería RMySQL
 library("RMySQL")
@@ -92,6 +92,15 @@ table(probs$class,data3$group[-train])
 mean(probs$class==data3$group[-train]) # 57.03% de bien clasificados
 
 ###########################################
+
+#####################################################################################
+#                                                                                   #
+# UNA VEZ REALIZADAS LAS PRUEBAS ANTERIORES DECIDIMOS QUEDARNOS CON LOS MODELOS QUE #
+# IMPLEMENTAN 5 GRUPOS DE RANGO 20 YA QUE AÚN TENIENDO MENOR ACIERTO QUE EL MODELO  #
+# DE 4 GRUPOS, NOS PARECE MÁS LÓGICO REALIZAR LA DIVISIÓN EN 5 Y ES POR ESO QUE     #
+# LOS SIGUIENTES ANÁLISIS SE REALIZARÁN CON 5 GRUPOS.                               #
+#                                                                                   #
+#####################################################################################
 
 #### MÁS PRUEBAS CON 5 GRUPOS DE RANGO 20 CON VARIABLES ACOUSTICNESS Y DANCEABILITY
 
