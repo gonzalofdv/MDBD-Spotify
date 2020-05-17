@@ -16,11 +16,40 @@ con <- dbConnect(RMySQL::MySQL(),
 #Obtenemos los datos del dw
 
 data<-dbGetQuery(con, "SELECT popularity, acousticness, loudness, instrumentalness FROM cancion")
-
+data2<-dbGetQuery(con, "SELECT popularity, loudness FROM cancion")
 #Agrupamos en 5 grupos con rango 20
 
 data$group <- cut(data$popularity, c(-1, 20, 40, 60, 80, 100), labels = c('group0','group1','group2','group3','group4'))
 data$group <- as.numeric(data$group)
+
+data2$group <- cut(data2$popularity, c(-1, 20, 40, 60, 80, 100), labels = c('group0','group1','group2','group3','group4'))
+data2$group <- as.numeric(data2$group)
+
+data$popularity <- NULL
+data2$popularity <- NULL
+#AQUI LA PRUEBA DE CLASIFICADOR
+
+attach(data)
+train=sample(seq(length(data$group)), length(data$group)*0.70,replace=FALSE)
+lda.tr=lda(group[train]~.,data=data[train,])
+probs=predict(lda.tr,newdata=data[-train,],type="prob")
+data.frame(probs)[1:5,]
+
+table(probs$class,data$group[-train])
+
+mean(probs$class==data$group[-train])
+
+attach(data2)
+train=sample(seq(length(data2$group)), length(data2$group)*0.70,replace=FALSE)
+lda.tr=lda(group[train]~.,data=data2[train,])
+probs=predict(lda.tr,newdata=data2[-train,],type="prob")
+data.frame(probs)[1:5,]
+
+table(probs$class,data2$group[-train])
+
+mean(probs$class==data2$group[-train])
+
+############################
 
 formula<- data$group ~ data$acousticness + data$loudness + data$instrumentalness
 
