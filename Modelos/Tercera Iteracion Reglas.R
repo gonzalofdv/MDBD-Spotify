@@ -1,6 +1,22 @@
 #PREPROCESAMIENTO DE DATOS
 
-dataRules <- read.csv('SpotifyFeatures.csv', encoding = 'UTF-8')
+#Librería RMySQL
+library("RMySQL")
+
+set.seed(28626)
+
+#Conexión con la base de datos
+
+con <- dbConnect(RMySQL::MySQL(),
+                 host="localhost",
+                 dbname = "mineriabd",
+                 user = "root",
+                 password = "")
+
+#Obtenemos los datos del dw
+
+dataRules<-dbGetQuery(con, "SELECT popularity, acousticness, danceability, energy, loudness FROM cancion")
+
 
 #Creamos una columna nueva en la que vamos a agrupar los datos de popularidad en 
 #5 intervalos 
