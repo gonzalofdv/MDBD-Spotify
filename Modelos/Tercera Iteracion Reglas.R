@@ -106,21 +106,16 @@ indexes <- createDataPartition(dataRules$popularityGroup, p=0.8, list = F)
 train <- dataRules[indexes,]
 test <- dataRules[-indexes,]
 
-#Creamos los clasificadores, uno que tenga un confidence bajo = 0,3 y otro con el confidence alto = 0,8
-classificator_strong <- CBA(
+#Creamos el clasificador que tenga en cuenta las reglas con un confidence igual o superior a 0,3
+clasificador <- CBA(
        popularityGroup ~ ., data = train, supp = 0.0001, conf=0.3, verbose = FALSE
-   )
-classificator_weak <- CBA(
-       popularityGroup ~ ., data = train, supp = 0.0001, conf = 0.8, verbose = FALSE
    )
 
 #Ahora comparamos la eficiencia:
-predicted_strong <- predict(classificator_strong, test)
-predicted_weak <- predict(classificator_weak, test)
+predicted_strong <- predict(clasificador, test)
+
 cross_tab_strong<- table(predicted = predicted_strong, true = test$popularityGroup)
-cross_tab_weak<- table(predicted = predicted_weak, true = test$popularityGroup)
 
 accuracy_strong <- (cross_tab_strong[1,1]+cross_tab_strong[2,2]+cross_tab_strong[3,3]+cross_tab_strong[4,4]+cross_tab_strong[5,5])/sum(cross_tab_strong)
-accuracy_weak <- (cross_tab_weak[1,1]+cross_tab_weak[2,2]+cross_tab_weak[3,3]+cross_tab_weak[4,4]+cross_tab_weak[5,5])/sum(cross_tab_weak)
 
-paste(accuracy_strong, accuracy_weak)
+accuracy_strong
