@@ -5,17 +5,40 @@
   install.packages("RMySQL", type="source")
   library("RMySQL")
 
-
-#Conexión con la base de datos con la base ya creada previamente
+#Conexión con el servicio php
+  
+  con <- dbConnect(RMySQL::MySQL(),
+                    host="localhost",
+                    user = "root",
+                    password = "")
+  
+#Creación base de datos
+  
+  dbGetQuery(con, "CREATE DATABASE IF NOT EXISTS `mineriabd` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;")
+  dbGetQuery(con, "USE `mineriabd`")
+  
+#Renovamos conexión esta vez con la base de datos
 
   con <- dbConnect(RMySQL::MySQL(),
                    host="localhost",
                    dbname = "mineriabd",
                    user = "root",
                    password = "")
-
+  
+  
 #CREACIÓN DE LAS TABLAS PARA EL DATAWAREHOUSE
 
+#Tabla artista
+  
+  dbGetQuery(con, "CREATE TABLE `artista` (
+    `artista` varchar(30) NOT NULL,
+    `popularity` float NOT NULL
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
+  
+  dbGetQuery(con, "ALTER TABLE `artista` ADD PRIMARY KEY (`artista`);")
+  
+  dbGetQuery(con, "COMMIT;")
+  
 #Tabla canción
 
   dbGetQuery(con, "CREATE TABLE `cancion` (
@@ -39,11 +62,20 @@
     `valence` float NOT NULL
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
 
-#Clave primaria
-
   dbGetQuery(con, "ALTER TABLE `cancion` ADD PRIMARY KEY (`track_id`);")
 
   dbGetQuery(con, "COMMIT;")
+  
+#Relación entre tablas
+  
+  dbGetQuery(con, "ALTER TABLE `cancion`
+  ADD CONSTRAINT `cancion_ibfk_1` FOREIGN KEY (`artista`) REFERENCES `artista` (`artista`) ON UPDATE CASCADE;")
+  dbGetQuery(con, "COMMIT;")
+  
+############################################################################
+#  EN ESTE PUNTO LAS TABLAS QUEDAN CREADAS Y CONFIGURADAS Y PASAMOS AL VOLCADO
+#  DE INFORMACIÓN
+############################################################################
 
 #Lectura del CSV a partir del cual llenamos el DW
   
@@ -79,7 +111,45 @@
 #Eliminamos duplicados
   
   SpFeatures <- SpFeatures[!duplicated(SpFeatures$track_id),]
+  
+  SpFeatures$artist_name <- str_to_lower(SpFeatures$artist_name, locale = "es")
 
+#Extraemos información de los artistas en dataframe a parte
+  
+  artistas <- SpFeatures %>%
+    group_by(artist_name) %>%
+    summarize(mean(popularity))
+
+#Renombramos
+  
+  names(artistas)[2]<-"popularity"
+  
+  library(stringr)
+  
+#Pasamos a minusculas y eliminamos duplicados
+  
+  artistas$artist_name <- str_to_lower(artistas$artist_name, locale = "es")
+  
+  artistas <- artistas[!duplicated(artistas$artist_name),]
+  
+#Carga de la información en la tabla
+  
+  j<-1
+  nrow(artistas)
+  for(j in 1:nrow(artistas)){
+    D <- artistas[j,]
+    
+    artista <- D$artist_name
+    popularidad <- D$popularity
+    query <- paste("INSERT INTO artista (
+  artista,
+  popularity)
+  VALUES ('",artista,"','",popularidad,"')", sep="")
+    
+    dbGetQuery(con, query)
+  }
+  
+#Carga de la tabla canción
   
 i <- 1 
 nrow(SpFeatures)
@@ -129,6 +199,8 @@ for(i in 1:nrow(SpFeatures)){
   dbGetQuery(con, query)
 }
 
-#Para comprobar que se han introducido todas las filas
+#Para comprobar que se han introducido todas las filas viendo cuantas se han introducido y comparamos visualmente con las filas de los dataframe
 
   dbGetQuery(con, "SELECT count(track_id) FROM cancion")
+  
+  dbGetQuery(con, "SELECT count(artista) FROM artista")
