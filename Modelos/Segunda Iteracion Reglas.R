@@ -17,6 +17,7 @@ con <- dbConnect(RMySQL::MySQL(),
 
 dataRules<-dbGetQuery(con, "SELECT popularity, acousticness, danceability, energy, loudness FROM cancion")
 
+#Con la siguiente instruccion comentada, podriamos construir el modelo sin conexion con la base de datos
 #dataRules <- read.csv('SpotifyFeatures.csv', encoding = 'UTF-8')
 
 #Creamos una columna nueva en la que vamos a agrupar los datos de popularidad en 
