@@ -19,7 +19,12 @@ data<-dbGetQuery(con, "SELECT popularity, energy, loudness FROM cancion")
 
 #Agrupamos la popularidad en grupos de 10
 data$group <- cut(data$popularity, c(-1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100), labels = c('group0','group1','group2','group3','group4','group5','group6','group7','group8','group9'))
+
+#Hacemos los grupos como numérico
 data$group <- as.numeric(data$group)
+
+#Eliminamos columna popularidad ya que solo usaremos los grupos
+data$popularity<-NULL
 
 formula<- data$group ~ data$energy + data$loudness
 
@@ -42,11 +47,8 @@ abline(a=0, b=1)
 
 
 #Error medio a priori
+
 ECMaPriori <- sqrt(sum((residuals(regresion.glm)^2))/(length(residuals(regresion.glm))))
-ECMaPriori
 
 EMPaPriori <- sqrt(ECMaPriori) / mean(data$group)
 EMPaPriori #26,3% de error medio "a priori"
-
-
-#Error medio a priori para Ozuna
