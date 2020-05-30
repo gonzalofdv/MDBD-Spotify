@@ -1,8 +1,8 @@
 #SCRIPT MODELO ARBOLES DE DECISION
 
 #cargamos las librerias que usaremos
-library(party)
-
+library(rpart)
+library(caret)
 #SIN ACCESO A LA BASE DE DATOS
   #No habrá conexión con la base de datos en este modelo porque no soy el localhost
   
@@ -25,6 +25,7 @@ con <- dbConnect(RMySQL::MySQL(),
 copia<-dbGetQuery(con, "SELECT * FROM cancion")
 
 #preparación del dataset para trabajar. Usaremos la copia para no modificar el dataset original
+
 #convertir los valores de 'clave', 'genero', 'modo' y 'time_signature' en factors
 copia$genero <- as.factor(copia$genero)
 copia$clave <- as.factor(copia$clave)
@@ -34,111 +35,493 @@ copia$time_signature <- as.factor(copia$time_signature)
 #comprobamos y limpiamos los valores del dataset que no esten completos (tienen algun NA)
 copia <- copia[complete.cases(copia),]
 
-#agrupamos los valores de popularidad en 10 intervalos de rango 10
-copia$group <- cut(copia$popularity, c(-1, 10, 20, 30, 40, 50 ,60 ,70 ,80 ,90 ,100), labels = 
-                     c('group0','group1','group2','group3','group4','group5','group6','group7','group8','group9'))
-
 #creamos la semilla para poder replicar los resultados
 set.seed(1234)
 
-#comprobaremos el grupo de la popularidad en funcion del resto de variables para empezar
+###################################################
+###Todas las formulas a considerar
+#Con estas formulas podemos probar la influencia de distintos grupos de variables
+
 formula1 <- group ~ genero + acousticness + danceability + duration + energy + 
   instrumentalness + clave + liveness + loudness + mode + speechiness + tempo +time_signature + valence
+
+formula2 <- group ~ acousticness + danceability + duration + energy + 
+  instrumentalness  + liveness + loudness  + speechiness + tempo + valence
+
+formula3 <- group ~ acousticness + danceability + energy + 
+  instrumentalness  + liveness + loudness  + speechiness + valence
+
+formula4 <- group ~ acousticness + 
+  instrumentalness + liveness + speechiness + valence
+
+formula5 <- group ~ genero + clave + mode + time_signature
+
+###################################################
+
+
+#10 grupos de rango 10
+copia$group <- cut(copia$popularity, c(-1,10, 20,30,40, 50, 60, 70, 80 ,90,100), labels = 
+        c('group0','group1','group2','group3','group4','group5','group6','group7','group8','group9'))
 #hacemos la division en entrenamiento y prueba, empezaremos con una division del 70%/30% respectivamente
 ind <- sample(2, nrow(copia), replace=TRUE, prob=c(0.7, 0.3))
 train <- copia[ind == 1, ]
 test <- copia[ind == 2,]
 
 #hora de construir los arboles
-tree1 <- ctree(formula1, train)
-
-#una vez tengamos los arboles, comprobemos su precision
-table(predict(tree1), train$group)
-
-precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 45.24% en entrenamiento
-
-precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 44.33% en prueba
-#Una precisión bastante baja para ambos si consideramos un buen valor de precision aquel por encima del 70%
 
 
-#probemos ahora con una division entrenamiento/prueba del 80/20
-ind <- sample(2, nrow(copia), replace=TRUE, prob=c(0.8, 0.2))
-train <- copia[ind == 1, ]
-test <- copia[ind == 2,]
+#FORMULA 1
+tree <- rpart(formula1, train, control = rpart.control(minsplit = 10))
 
-#hora de construir los arboles
-tree1 <- ctree(formula1, train)
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
 
-#una vez tengamos los arboles, comprobemos su precision
-table(predict(tree1), train$group)
+#Matriz de confusión y precisión del modelo
+cmTest1 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain1 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
 
-precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 45.20% en entrenamiento
+cmTest1$overall
+cmTrain1$overall
 
-precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 45.16% en prueba
 
-#comprobemos ahora con una menor dispersion de la variable groups. Dividamos la popularidad en 5 tramos en vez de 10 
-copia$group <- cut(copia$popularity, c(-1, 20, 40, 60, 80, 100), labels = 
-                     c('group0','group1','group2','group3','group4'))
 
-#Mismo procedimeinto que antes
+#FORMULA 2
+tree <- rpart(formula2, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest2-<- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest2$overall
+cmTrain2$overall
+
+
+
+#FORMULA 3
+tree <- rpart(formula3, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest3 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain3 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest3$overall
+cmTrain3$overall
+
+
+#FORMULA 4
+tree <- rpart(formula4, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest4 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain4 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest4$overall
+cmTrain4$overall
+#FORMULA 5
+tree <- rpart(formula5, train, control = rpart.control(minsplit = 10))
+
+
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest5 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain5 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest5$overall
+cmTrain5$overall
+#########################################################
+
+
+
+
+#5 grupos de rango 20
+copia$group <- cut(copia$popularity, c(-1,20,40,60,80,100), labels = 
+        c('group0','group1','group2','group3','group4'))
+
 #hacemos la division en entrenamiento y prueba, empezaremos con una division del 70%/30% respectivamente
 ind <- sample(2, nrow(copia), replace=TRUE, prob=c(0.7, 0.3))
 train <- copia[ind == 1, ]
 test <- copia[ind == 2,]
 
 #hora de construir los arboles
-tree1 <- ctree(formula1, train)
 
-#una vez tengamos los arboles, comprobemos su precision
-table(predict(tree1), train$group)
 
-precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 69.62% en entrenamiento
+#FORMULA 1
+tree <- rpart(formula1, train, control = rpart.control(minsplit = 10))
 
-precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 68.93% en prueba
-#Una precisión bastante baja para ambos si consideramos un buen valor de precision aquel por encima del 70%
-#---------------------------------------------------------------------------------------------------------------
-#probaremos con una division de la popularidad en cuatro tramos de rango 25.
-copia$group <- cut(copia$popularity, c(-1,25, 50,75, 100), labels = 
-                     c('group0','group1'))
-#Mismo procedimeinto que antes
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest1 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain1 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest1$overall
+cmTrain1$overall
+
+
+
+#FORMULA 2
+tree <- rpart(formula2, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest2-<- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest2$overall
+cmTrain2$overall
+
+
+
+#FORMULA 3
+tree <- rpart(formula3, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest3 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain3 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest3$overall
+cmTrain3$overall
+
+
+#FORMULA 4
+tree <- rpart(formula4, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest4 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain4 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest4$overall
+cmTrain4$overall
+#FORMULA 5
+tree <- rpart(formula5, train, control = rpart.control(minsplit = 10))
+
+
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest5 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain5 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest5$overall
+cmTrain5$overall
+#########################################################
+
+
+
+#4 grupos de rango 25
+copia$group <- cut(copia$popularity, c(-1,25,50,75,100), labels = 
+        c('group0','group1','group2','group3'))
+
 #hacemos la division en entrenamiento y prueba, empezaremos con una division del 70%/30% respectivamente
 ind <- sample(2, nrow(copia), replace=TRUE, prob=c(0.7, 0.3))
 train <- copia[ind == 1, ]
 test <- copia[ind == 2,]
 
 #hora de construir los arboles
-tree1 <- ctree(formula1, train)
 
-#una vez tengamos los arboles, comprobemos su precision
-table(predict(tree1), train$group)
 
-precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 74.08% en entrenamiento
+#FORMULA 1
+tree <- rpart(formula1, train, control = rpart.control(minsplit = 10))
 
-precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 73.35% en prueba
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
 
-#Con la formula 1, que toma como variable dependiente group y como independientes todas las demas,
-#conseguimos una precisión mayor que el 70% tanto en prueba como en entrenamiento
+#Matriz de confusión y precisión del modelo
+cmTest1 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain1 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
 
-#---------------------------------------------------------
+cmTest1$overall
+cmTrain1$overall
 
-#por ultimo, probaremos con una division de la popularidad en dos tramos de rango 50.
-copia$group <- cut(copia$popularity, c(-1, 50, 100), labels = 
-                     c('group0','group1'))
-#Mismo procedimeinto que antes
+
+
+#FORMULA 2
+tree <- rpart(formula2, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest2-<- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest2$overall
+cmTrain2$overall
+
+
+
+#FORMULA 3
+tree <- rpart(formula3, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest3 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain3 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest3$overall
+cmTrain3$overall
+
+
+#FORMULA 4
+tree <- rpart(formula4, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest4 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain4 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest4$overall
+cmTrain4$overall
+#FORMULA 5
+tree <- rpart(formula5, train, control = rpart.control(minsplit = 10))
+
+
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest5 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain5 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest5$overall
+cmTrain5$overall
+#########################################################
+
+
+
+#2 grupos de rango 50
+copia$group <- cut(copia$popularity, c(-1, 50,100), labels = 
+        c('group0','group1'))
+
 #hacemos la division en entrenamiento y prueba, empezaremos con una division del 70%/30% respectivamente
 ind <- sample(2, nrow(copia), replace=TRUE, prob=c(0.7, 0.3))
 train <- copia[ind == 1, ]
 test <- copia[ind == 2,]
 
 #hora de construir los arboles
-tree1 <- ctree(formula1, train)
 
-#una vez tengamos los arboles, comprobemos su precision
-table(predict(tree1), train$group)
 
-precTrain1 <- mean(predict(tree1) == train$group) #nos da un valor del 83.75% en entrenamiento
+#FORMULA 1
+tree <- rpart(formula1, train, control = rpart.control(minsplit = 10))
 
-precTest1 <- mean(predict(tree1, newdata = test) == test$group) #nos da un valor del 83.47% en prueba
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
 
-#Con la formula 1, que toma como variable dependiente group y como independientes todas las demas,
-#conseguimos una precisión mayor que el 70% tanto en prueba como en entrenamiento
+#Matriz de confusión y precisión del modelo
+cmTest1 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain1 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest1$overall
+cmTrain1$overall
+
+
+
+#FORMULA 2
+tree <- rpart(formula2, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest2-<- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest2$overall
+cmTrain2$overall
+
+
+
+#FORMULA 3
+tree <- rpart(formula3, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest3 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain3 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest3$overall
+cmTrain3$overall
+
+
+#FORMULA 4
+tree <- rpart(formula4, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest4 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain4 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest4$overall
+cmTrain4$overall
+#FORMULA 5
+tree <- rpart(formula5, train, control = rpart.control(minsplit = 10))
+
+
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest5 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain5 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest5$overall
+cmTrain5$overall
+#########################################################
+
+
+
+# Agrupación de popularidad irregular, niveles:
+# desconocido [0,20)
+# inpopular [20,50)
+# poco conocida [50, 60)
+# algo conocida [60, 70)
+# conocida [70, 80)
+# popular [80, 90)
+# viral [90, 100]
+copia$group <- cut(copia$popularity, c(-1, 20, 50, 60, 70, 80 ,95,100), labels = 
+                     c('desconocido','inpopular','poco conocida','algo conocida','conocida','popular','viral'))
+
+
+
+
+ind <- sample(2, nrow(copia), replace=TRUE, prob=c(0.7, 0.3))
+train <- copia[ind == 1, ]
+test <- copia[ind == 2,]
+
+#hora de construir los arboles
+
+
+#FORMULA 1
+tree <- rpart(formula1, train, control = rpart.control(minsplit = 10))
+
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest1 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain1 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest1$overall
+cmTrain1$overall
+
+
+
+#FORMULA 2
+tree <- rpart(formula2, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest2-<- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest2$overall
+cmTrain2$overall
+
+
+
+#FORMULA 3
+tree <- rpart(formula3, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest3 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain3 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest3$overall
+cmTrain3$overall
+
+
+#FORMULA 4
+tree <- rpart(formula4, train, control = rpart.control(minsplit = 10))
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest4 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain4 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest4$overall
+cmTrain4$overall
+#FORMULA 5
+tree <- rpart(formula5, train, control = rpart.control(minsplit = 10))
+
+
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest5 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTrain5 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+
+cmTest5$overall
+cmTrain5$overall
+#########################################################
