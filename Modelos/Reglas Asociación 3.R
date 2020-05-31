@@ -117,7 +117,8 @@ inspect(sort(rules.popularity,by="confidence"))
 
 install.packages("caret")  
 install.packages("arulesCBA")
-
+require("caret")
+require("arulesCBA")
 
 
 #Creamos los datasets que van a ser usados como entrenamiento y como pruebas
