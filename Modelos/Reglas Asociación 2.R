@@ -1,11 +1,11 @@
 #PREPROCESAMIENTO DE DATOS
 
-#Librer�a RMySQL
+#LibrerÃa RMySQL
 library("RMySQL")
 
 set.seed(28626)
 
-#Conexión con la base de datos
+#ConexiÃ³n con la base de datos
 
 con <- dbConnect(RMySQL::MySQL(),
                  host="localhost",
@@ -23,17 +23,14 @@ dataRules<-dbGetQuery(con, "SELECT popularity, acousticness, danceability, energ
 #Creamos una columna nueva en la que vamos a agrupar los datos de popularidad en 
 #10 intervalos 
 
-dataRules$popularityGroup = seq(1.133949, by = 1)
+dataRules$popularityGroup = dataRules$popularity
 
 #Susituimos los datos de la nueva columna por su grupo de popularidad correspondiente
 
-for(i in 0:100){
-  dataRules <- within(dataRules, popularityGroup[popularity==i] <- floor(i/10)+1)
-}
+dataRules$popularityGroup <- cut(dataRules$popularityGroup, br=c(1,10,20,30,40,50,60,70,80,90,101), labels = c("1","2","3","4","5","6","7","8","9","10"))
 
-#Arreglamos entradas que tengan 100 de popularidad, que se meterian en el grupo 11
-#pero nosotros lo metemos en el 10 igualmente
-dataRules <- within(dataRules, popularityGroup[popularity==100] <- 10)
+
+
 
 #Reglas de asociacion(Seguimos con la parte de preprocesamiento):
 
@@ -53,7 +50,7 @@ summary(dataRules)
 
 #Ahora eliminamos las columnas que no nos van a aportar informacion(En las primeras iteraciones vimos que tenian
 #poca correlacion o nula con la popularidad):
-  #Esto solo para procesamiento sin conexión a BD (con todo el dataset):
+  #Esto solo para procesamiento sin conexiÃ³n a BD (con todo el dataset):
     #dataRules$track_id = NULL
     #dataRules$artist_name = NULL
     #dataRules$track_name = NULL
@@ -65,7 +62,7 @@ summary(dataRules)
     #dataRules$tempo = NULL
     #dataRules$valence = NULL
 
-  #Para procesamiento con BD, habremos extraido únicamente la información necesaria
+  #Para procesamiento con BD, habremos extraido Ãºnicamente la informaciÃ³n necesaria
     dataRules$popularity = NULL
 
 #Pasamos a factor los valores numericos
