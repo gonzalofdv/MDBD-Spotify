@@ -56,6 +56,7 @@ formula4 <- group ~ acousticness +
 
 formula5 <- group ~ genero + clave + mode + time_signature
 
+formulaG <- group ~ genero
 ###################################################
 
 
@@ -79,8 +80,9 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest1 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain1 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest1 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain1 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
+
 
 cmTest1$overall
 cmTrain1$overall
@@ -95,8 +97,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest2 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest2 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain2 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest2$overall
 cmTrain2$overall
@@ -111,8 +113,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest3 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain3 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest3 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain3 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest3$overall
 cmTrain3$overall
@@ -126,8 +128,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest4 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain4 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest4 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain4 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest4$overall
 cmTrain4$overall
@@ -141,13 +143,29 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest5 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain5 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest5 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain5 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest5$overall
 cmTrain5$overall
-#########################################################
 
+#FORMULA Genero
+tree <- rpart(formulaG, train, control = rpart.control(minsplit = 10))
+
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTestG <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrainG <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
+
+
+cmTestG$overall
+cmTrainG$overall
+
+#########################################################
 
 
 
@@ -172,8 +190,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest1 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain1 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest1 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain1 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest1$overall
 cmTrain1$overall
@@ -188,8 +206,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest2 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest2 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain2 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest2$overall
 cmTrain2$overall
@@ -204,8 +222,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest3 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain3 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest3 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain3 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest3$overall
 cmTrain3$overall
@@ -219,8 +237,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest4 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain4 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest4 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain4 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest4$overall
 cmTrain4$overall
@@ -234,11 +252,27 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest5 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain5 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest5 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain5 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest5$overall
 cmTrain5$overall
+
+#FORMULA Genero
+tree <- rpart(formulaG, train, control = rpart.control(minsplit = 10))
+
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTestG <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrainG <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
+
+
+cmTestG$overall
+cmTrainG$overall
 #########################################################
 
 
@@ -264,8 +298,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest1 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain1 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest1 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain1 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest1$overall
 cmTrain1$overall
@@ -280,8 +314,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest2 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest2 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain2 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest2$overall
 cmTrain2$overall
@@ -296,8 +330,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest3 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain3 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest3 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain3 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest3$overall
 cmTrain3$overall
@@ -311,8 +345,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest4 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain4 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest4 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain4 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest4$overall
 cmTrain4$overall
@@ -326,11 +360,27 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest5 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain5 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest5 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain5 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest5$overall
 cmTrain5$overall
+
+#FORMULA Genero
+tree <- rpart(formulaG, train, control = rpart.control(minsplit = 10))
+
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTestG <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrainG <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
+
+
+cmTestG$overall
+cmTrainG$overall
 #########################################################
 
 
@@ -356,8 +406,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest1 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain1 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest1 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain1 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest1$overall
 cmTrain1$overall
@@ -372,8 +422,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest2 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest2 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain2 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest2$overall
 cmTrain2$overall
@@ -388,8 +438,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest3 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain3 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest3 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain3 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest3$overall
 cmTrain3$overall
@@ -403,8 +453,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest4 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain4 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest4 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain4 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest4$overall
 cmTrain4$overall
@@ -418,11 +468,27 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest5 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain5 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest5 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain5 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest5$overall
 cmTrain5$overall
+
+#FORMULA Genero
+tree <- rpart(formulaG, train, control = rpart.control(minsplit = 10))
+
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTestG <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrainG <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
+
+
+cmTestG$overall
+cmTrainG$overall
 #########################################################
 
 
@@ -457,8 +523,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest1 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain1 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest1 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain1 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest1$overall
 cmTrain1$overall
@@ -473,8 +539,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest2 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest2 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain2 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest2$overall
 cmTrain2$overall
@@ -489,8 +555,8 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest3 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain3 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest3 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain3 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest3$overall
 cmTrain3$overall
@@ -504,14 +570,29 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest4 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain4 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTest4 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain4 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
 cmTest4$overall
 cmTrain4$overall
 #FORMULA 5
 tree <- rpart(formula5, train, control = rpart.control(minsplit = 10))
 
+formulaG <- group ~ genero
+#Realizamos la poda de los arboles y obtenemos las precisiones 
+opt <- which.min(tree$cptable[,"xerror"])
+cp <- tree$cptable[opt, "CP"]
+tree_prune <- prune(tree, cp= cp)
+
+#Matriz de confusión y precisión del modelo
+cmTest5 <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrain5 <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
+
+cmTest5$overall
+cmTrain5$overall
+
+#FORMULA Genero
+tree <- rpart(formulaG, train, control = rpart.control(minsplit = 10))
 
 #Realizamos la poda de los arboles y obtenemos las precisiones 
 opt <- which.min(tree$cptable[,"xerror"])
@@ -519,9 +600,10 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest5 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
-cmTrain5 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
+cmTestG <- confusionMatrix(table(test$group, predict(tree_prune, test, type = "class")))
+cmTrainG <- confusionMatrix(table(train$group, predict(tree_prune, train, type = "class")))
 
-cmTest5$overall
-cmTrain5$overall
+
+cmTestG$overall
+cmTrainG$overall
 #########################################################
