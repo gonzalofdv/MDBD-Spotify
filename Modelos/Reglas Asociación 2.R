@@ -1,6 +1,6 @@
 #PREPROCESAMIENTO DE DATOS
 
-#Librería RMySQL
+#Librer�a RMySQL
 library("RMySQL")
 
 set.seed(28626)
@@ -15,7 +15,7 @@ con <- dbConnect(RMySQL::MySQL(),
 
 #Obtenemos los datos del dw
 
-dataRules<-dbGetQuery(con, "SELECT popularity, acousticness, danceability, energy, loudness FROM cancion")
+dataRules<-dbGetQuery(con, "SELECT popularity, acousticness, danceability, energy, loudness, genero, clave, mode FROM cancion")
 
 #Con la siguiente instruccion comentada, podriamos construir el modelo sin conexion con la base de datos
 #dataRules <- read.csv('SpotifyFeatures.csv', encoding = 'UTF-8')
@@ -53,7 +53,7 @@ summary(dataRules)
 
 #Ahora eliminamos las columnas que no nos van a aportar informacion(En las primeras iteraciones vimos que tenian
 #poca correlacion o nula con la popularidad):
-  #Esto solo para procesamiento sin conexión a BD:
+  #Esto solo para procesamiento sin conexión a BD (con todo el dataset):
     #dataRules$track_id = NULL
     #dataRules$artist_name = NULL
     #dataRules$track_name = NULL

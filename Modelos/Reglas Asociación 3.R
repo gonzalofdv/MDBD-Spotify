@@ -1,6 +1,6 @@
 #PREPROCESAMIENTO DE DATOS
 
-#Librería RMySQL
+#Librer�a RMySQL
 library("RMySQL")
 
 set.seed(28626)
@@ -15,7 +15,7 @@ con <- dbConnect(RMySQL::MySQL(),
 
 #Obtenemos los datos del dw
 
-dataRules<-dbGetQuery(con, "SELECT popularity, acousticness, danceability, energy, loudness FROM cancion")
+dataRules<-dbGetQuery(con, "SELECT popularity, acousticness, danceability, energy, loudness, genero, clave, mode FROM cancion")
 
 
 #Creamos una columna nueva en la que vamos a agrupar los datos de popularidad en 
@@ -42,16 +42,20 @@ summary(dataRules)
 
 #Ahora eliminamos las columnas que no nos van a aportar informacion(En las primeras iteraciones vimos que tenian
 #poca correlacion o nula con la popularidad):
-dataRules$track_id = NULL
-dataRules$artist_name = NULL
-dataRules$track_name = NULL
+#Eso solo es para procesamiento sin conexión a la BD (con todo el dataset):
+	#dataRules$track_id = NULL
+	#dataRules$artist_name = NULL
+	#dataRules$track_name = NULL
+	#dataRules$popularity = NULL
+	#dataRules$duration_ms = NULL
+	#dataRules$liveness = NULL
+	#dataRules$instrumentalness = NULL
+	#dataRules$speechiness = NULL
+	#dataRules$tempo = NULL
+	#dataRules$valence = NULL
+
+#Eliminamos la columna popularity que no nos será util
 dataRules$popularity = NULL
-dataRules$duration_ms = NULL
-dataRules$liveness = NULL
-dataRules$instrumentalness = NULL
-dataRules$speechiness = NULL
-dataRules$tempo = NULL
-dataRules$valence = NULL
 
 #Pasamos a factor los valores numericos
 
