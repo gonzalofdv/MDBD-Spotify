@@ -95,7 +95,7 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest2-<- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTest2 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
 cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
 
 cmTest2$overall
@@ -188,7 +188,7 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest2-<- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTest2 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
 cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
 
 cmTest2$overall
@@ -280,7 +280,7 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest2-<- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTest2 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
 cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
 
 cmTest2$overall
@@ -372,7 +372,7 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest2-<- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTest2 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
 cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
 
 cmTest2$overall
@@ -473,7 +473,7 @@ cp <- tree$cptable[opt, "CP"]
 tree_prune <- prune(tree, cp= cp)
 
 #Matriz de confusión y precisión del modelo
-cmTest2-<- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
+cmTest2 <- confusionMatrix(table(test$genero, predict(tree_prune, test, type = "class")))
 cmTrain2 <- confusionMatrix(table(train$genero, predict(tree_prune, train, type = "class")))
 
 cmTest2$overall
